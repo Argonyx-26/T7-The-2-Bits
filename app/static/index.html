@@ -1,0 +1,364 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENTRA Internal Application</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Inter, Segoe UI, Arial, sans-serif;
+            background:
+                radial-gradient(circle at top right, rgba(89, 72, 180, 0.22), transparent 35%),
+                #0b1020;
+            color: #e7ebff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
+
+        .shell {
+            width: min(900px, 100%);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: rgba(18, 24, 45, 0.92);
+            border: 1px solid #293250;
+            border-radius: 18px;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+        }
+
+        .sub {
+            color: #9ba7ce;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        label {
+            display: block;
+            margin: 14px 0 7px;
+            color: #b8c1e0;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid #334060;
+            background: #0d1429;
+            color: white;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px 14px;
+            border: 0;
+            border-radius: 10px;
+            background: #635bce;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        button.secondary {
+            background: #202944;
+        }
+
+        button.danger {
+            background: #6d3349;
+        }
+
+        button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .status {
+            padding: 14px;
+            background: #0d1429;
+            border: 1px solid #2d3857;
+            border-radius: 12px;
+            min-height: 80px;
+            margin-bottom: 18px;
+            white-space: pre-wrap;
+        }
+
+        .scenario {
+            border-top: 1px solid #293250;
+            margin-top: 22px;
+            padding-top: 20px;
+        }
+
+        .event {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 10px;
+            background: #111a31;
+            font-size: 13px;
+            color: #b6c2e4;
+        }
+
+        code {
+            color: #d9d3ff;
+        }
+
+        @media (max-width: 760px) {
+            .shell {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="shell">
+
+    <section class="card">
+        <h1>SENTRA Internal App</h1>
+        <div class="sub">
+            Controlled application telemetry source for SENTRA.
+            Normal user actions produce real security-relevant application events.
+        </div>
+
+        <div class="status" id="status">
+            Not authenticated.
+        </div>
+
+        <label>Username</label>
+        <input id="username" value="analyst">
+
+        <label>Password</label>
+        <input id="password" type="password" value="analyst123">
+
+        <button onclick="login()">Login</button>
+        <button class="secondary" onclick="badLogin()">Test Failed Login</button>
+
+        <div class="scenario">
+            <strong>Controlled Demo Scenario</strong>
+
+            <button onclick="runScenario()">
+                Run suspicious access flow
+            </button>
+        </div>
+    </section>
+
+    <section class="card">
+
+        <h1>Protected Actions</h1>
+
+        <div class="sub">
+            These actions generate telemetry through normal application routes.
+        </div>
+
+        <button id="profileBtn" onclick="callProfile()" disabled>
+            Access Protected Profile
+        </button>
+
+        <button id="adminBtn" onclick="callAdmin()" disabled>
+            Attempt Admin Endpoint
+        </button>
+
+        <button id="restrictedBtn" onclick="callRestricted()" disabled>
+            Access Restricted Resource
+        </button>
+
+        <button class="danger" onclick="logout()">
+            Logout
+        </button>
+
+        <div class="event" id="output">
+            Waiting for activity...
+        </div>
+
+    </section>
+
+</div>
+
+
+<script>
+
+async function request(url, options = {}) {
+    return fetch(url, {
+        credentials: "same-origin",
+        ...options,
+        headers: {
+            "Content-Type": "application/json",
+            ...(options.headers || {})
+        }
+    });
+}
+
+
+function setStatus(text) {
+    document.getElementById("status").textContent = text;
+}
+
+
+function setOutput(text) {
+    document.getElementById("output").textContent = text;
+}
+
+
+function enableProtectedActions(enabled) {
+    document.getElementById("profileBtn").disabled = !enabled;
+    document.getElementById("adminBtn").disabled = !enabled;
+    document.getElementById("restrictedBtn").disabled = !enabled;
+}
+
+
+async function login(usernameOverride, passwordOverride) {
+
+    const username =
+        usernameOverride ??
+        document.getElementById("username").value;
+
+    const password =
+        passwordOverride ??
+        document.getElementById("password").value;
+
+    const response = await request("/api/login", {
+        method: "POST",
+        body: JSON.stringify({
+            username,
+            password
+        })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        setStatus(`Login failed\n${data.detail || "Authentication denied"}`);
+        enableProtectedActions(false);
+        return false;
+    }
+
+    setStatus(
+        `Authenticated\nUser: ${data.username}\nRole: ${data.role}`
+    );
+
+    enableProtectedActions(true);
+
+    return true;
+}
+
+
+async function badLogin() {
+
+    const username =
+        document.getElementById("username").value || "unknown";
+
+    await login(username, "definitely-wrong-password");
+
+    setOutput(
+        "A real authentication failure was sent to SENTRA."
+    );
+}
+
+
+async function callProfile() {
+
+    const response = await request("/api/profile");
+
+    const data = await response.json();
+
+    setOutput(
+        `Profile API\nHTTP ${response.status}\n\n${JSON.stringify(data, null, 2)}`
+    );
+}
+
+
+async function callAdmin() {
+
+    const response = await request("/api/admin");
+
+    const data = await response.json();
+
+    setOutput(
+        `Admin Endpoint\nHTTP ${response.status}\n\n${JSON.stringify(data, null, 2)}`
+    );
+}
+
+
+async function callRestricted() {
+
+    const response = await request("/api/admin");
+
+    const data = await response.json();
+
+    setOutput(
+        `Restricted Resource\nHTTP ${response.status}\n\n${JSON.stringify(data, null, 2)}`
+    );
+}
+
+
+async function logout() {
+
+    await request("/api/logout", {
+        method: "POST"
+    });
+
+    setStatus("Logged out.");
+    enableProtectedActions(false);
+
+    setOutput("Session closed.");
+}
+
+
+async function runScenario() {
+
+    setOutput("Running controlled suspicious-access scenario...");
+
+    /*
+        These are real HTTP requests through the application.
+        We are NOT posting fake events to SENTRA.
+    */
+
+    await login("analyst", "wrong-password-1");
+    await new Promise(r => setTimeout(r, 500));
+
+    await login("analyst", "wrong-password-2");
+    await new Promise(r => setTimeout(r, 500));
+
+    await login("analyst", "analyst123");
+    await new Promise(r => setTimeout(r, 500));
+
+    await callProfile();
+    await new Promise(r => setTimeout(r, 500));
+
+    await callAdmin();
+
+    setOutput(
+        "Scenario complete.\n\n" +
+        "Expected telemetry:\n" +
+        "• authentication_failure ×2\n" +
+        "• authentication_success\n" +
+        "• api_request\n" +
+        "• authorization_failure"
+    );
+}
+
+</script>
+
+</body>
+</html>
+

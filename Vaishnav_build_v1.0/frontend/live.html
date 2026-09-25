@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SENTRA Live Events</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 32px;
+            background: #0b1020;
+            color: #e8ecf4;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            margin-bottom: 6px;
+        }
+
+        #status {
+            color: #8fa3bf;
+            margin-bottom: 24px;
+        }
+
+        #events {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .event {
+            background: #151c2e;
+            border: 1px solid #27324a;
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .name {
+            font-weight: bold;
+        }
+
+        .meta {
+            color: #9aa8bd;
+            font-size: 13px;
+        }
+
+        pre {
+            margin-top: 12px;
+            white-space: pre-wrap;
+            color: #b9c7da;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>SENTRA — Live Security Events</h1>
+
+    <div id="status">
+        Connecting to SENTRA...
+    </div>
+
+    <div id="events"></div>
+
+    <script>
+        const status = document.getElementById("status");
+        const events = document.getElementById("events");
+
+        const socket = new WebSocket(
+            "ws://127.0.0.1:8000/ws/events"
+        );
+
+        socket.onopen = () => {
+            status.textContent = "● LIVE — connected to SENTRA";
+        };
+
+        socket.onmessage = (message) => {
+            const event = JSON.parse(message.data);
+
+            const card = document.createElement("div");
+            card.className = "event";
+
+            card.innerHTML = `
+                <div class="event-header">
+                    <span class="name">
+                        ${event.event_name}
+                    </span>
+
+                    <span class="meta">
+                        Event ${event.event_id}
+                    </span>
+                </div>
+
+                <div class="meta">
+                    User: ${event.user.name ?? "-"}
+                    &nbsp; | &nbsp;
+                    Host: ${event.host.name ?? "-"}
+                    &nbsp; | &nbsp;
+                    Source: ${event.source}
+                </div>
+
+                <pre>${JSON.stringify(event, null, 2)}</pre>
+            `;
+
+            events.prepend(card);
+        };
+
+        socket.onerror = () => {
+            status.textContent =
+                "Connection error";
+        };
+
+        socket.onclose = () => {
+            status.textContent =
+                "Disconnected from SENTRA";
+        };
+    </script>
+
+</body>
+</html>
