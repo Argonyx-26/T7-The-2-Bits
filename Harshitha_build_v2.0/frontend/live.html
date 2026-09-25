@@ -1,0 +1,3185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0B1230" />
+    <title>SENTRA — Incident Intelligence</title>
+
+    <style>
+        :root {
+            --bg: #f4f8fc;
+            --panel: #ffffff;
+            --panel-2: #f8fbfe;
+            --line: #d9e3ed;
+            --line-soft: #e9eff5;
+            --text: #0b1730;
+            --text-secondary: #36506f;
+            --muted: #6f839d;
+            --muted-2: #93a2b5;
+
+            --violet: #745cf2;
+            --violet-soft: rgba(116, 92, 242, .10);
+
+            --cyan: #13add0;
+            --green: #1aa564;
+            --amber: #d89422;
+
+            --red: #e64c65;
+            --red-soft: rgba(230, 76, 101, .09);
+
+            --shadow:
+                0 14px 40px rgba(29, 61, 92, .08);
+
+            --radius: 16px;
+        }
+
+        /* =========================================================
+           DARK THEME
+        ========================================================= */
+
+        body.dark {
+            --bg: #0B1230;
+            --panel: #111936;
+            --panel-2: #151F42;
+            --line: #2A3762;
+            --line-soft: #202B4D;
+
+            --text: #F3F6FF;
+            --text-secondary: #B8C4E1;
+            --muted: #8C9BBB;
+            --muted-2: #657396;
+
+            --violet: #8B7CFF;
+            --violet-soft: rgba(139, 124, 255, .14);
+
+            --cyan: #54D7E5;
+            --green: #55D38A;
+            --amber: #F0B967;
+
+            --red: #FF687C;
+            --red-soft: rgba(255, 104, 124, .12);
+
+            --shadow:
+                0 18px 50px rgba(0, 0, 0, .34);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            min-height: 100%;
+        }
+
+        body {
+            margin: 0;
+
+            color: var(--text);
+
+            background:
+                radial-gradient(
+                    circle at 82% 8%,
+                    rgba(139, 124, 255, .08),
+                    transparent 26%
+                ),
+                radial-gradient(
+                    circle at 15% 28%,
+                    rgba(84, 215, 229, .05),
+                    transparent 22%
+                ),
+                var(--bg);
+
+            font-family:
+                Inter,
+                ui-sans-serif,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            letter-spacing: -.01em;
+
+            transition:
+                background .25s ease,
+                color .25s ease;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        /* =========================================================
+           APP
+        ========================================================= */
+
+        .app-shell {
+            width: min(1520px, calc(100% - 36px));
+            margin: 0 auto;
+            padding: 20px 0 28px;
+        }
+
+        /* =========================================================
+           HEADER
+        ========================================================= */
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .brand-block {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        /*
+            IMPORTANT:
+            No background.
+            No border.
+            No box.
+            No card around the logo.
+        */
+
+        .logo-plate {
+            display: inline-flex;
+            align-items: center;
+
+            background: transparent;
+            border: 0;
+            box-shadow: none;
+
+            padding: 0;
+        }
+
+        .brand-logo {
+            width: 260px;
+            height: auto;
+
+            display: block;
+
+            object-fit: contain;
+
+            filter: none;
+
+            transition:
+                filter .25s ease;
+        }
+
+        /*
+            In dark mode the navy SENTRA wordmark can blend
+            into the dark dashboard. This gives the logo a
+            subtle white edge and cyan glow without creating
+            a visible box.
+        */
+
+        body.dark .brand-logo {
+            filter:
+                drop-shadow(
+                    0 0 1px
+                    rgba(255,255,255,.92)
+                )
+                drop-shadow(
+                    0 2px 10px
+                    rgba(84,215,229,.12)
+                );
+        }
+
+        .brand-subtitle {
+            color: var(--muted);
+
+            font-size: 12px;
+
+            padding-left: 2px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            flex-wrap: wrap;
+
+            justify-content: flex-end;
+        }
+
+        /* =========================================================
+           THEME TOGGLE
+        ========================================================= */
+
+        .theme-toggle {
+            display: inline-flex;
+            align-items: center;
+
+            padding: 3px;
+
+            border:
+                1px solid var(--line);
+
+            border-radius: 999px;
+
+            background:
+                var(--panel);
+
+            box-shadow:
+                var(--shadow);
+        }
+
+        .theme-button {
+            border: 0;
+
+            background: transparent;
+
+            color: var(--muted);
+
+            padding:
+                8px 11px;
+
+            border-radius: 999px;
+
+            cursor: pointer;
+
+            font-size: 11px;
+
+            font-weight: 700;
+        }
+
+        .theme-button.active {
+            color:
+                var(--text);
+
+            background:
+                var(--violet-soft);
+        }
+
+        /* =========================================================
+           STATUS
+        ========================================================= */
+
+        .system-status {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            padding:
+                9px 13px;
+
+            border:
+                1px solid var(--line);
+
+            border-radius: 999px;
+
+            background:
+                var(--panel);
+
+            color:
+                var(--text-secondary);
+
+            font-size: 12px;
+
+            white-space: nowrap;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+
+            border-radius: 50%;
+
+            background:
+                var(--amber);
+
+            box-shadow:
+                0 0 0 5px
+                rgba(216,149,36,.10);
+        }
+
+        .status-dot.live {
+            background:
+                var(--green);
+
+            box-shadow:
+                0 0 0 5px
+                rgba(28,168,102,.10);
+        }
+
+        /* =========================================================
+           SUMMARY
+        ========================================================= */
+
+        .summary-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    4,
+                    minmax(0, 1fr)
+                );
+
+            gap: 12px;
+
+            margin-bottom: 14px;
+        }
+
+        .summary-card,
+        .panel,
+        .telemetry {
+            background:
+                linear-gradient(
+                    180deg,
+                    var(--panel),
+                    var(--panel-2)
+                );
+
+            border:
+                1px solid var(--line);
+
+            border-radius:
+                var(--radius);
+
+            box-shadow:
+                var(--shadow);
+        }
+
+        .summary-card {
+            padding:
+                15px 16px;
+        }
+
+        .summary-label {
+            color:
+                var(--muted);
+
+            font-size:
+                11px;
+
+            text-transform:
+                uppercase;
+
+            letter-spacing:
+                .10em;
+        }
+
+        .summary-value {
+            margin-top:
+                8px;
+
+            display:
+                flex;
+
+            justify-content:
+                space-between;
+
+            align-items:
+                baseline;
+
+            gap:
+                8px;
+        }
+
+        .summary-value strong {
+            font-size:
+                26px;
+
+            line-height:
+                1;
+        }
+
+        .summary-detail {
+            color:
+                var(--muted-2);
+
+            font-size:
+                11px;
+        }
+
+        /* =========================================================
+           WORKSPACE
+        ========================================================= */
+
+        .workspace {
+            display:
+                grid;
+
+            grid-template-columns:
+                330px
+                minmax(0, 1fr);
+
+            gap:
+                14px;
+
+            min-height:
+                650px;
+        }
+
+        .queue-panel,
+        .detail-panel {
+            overflow:
+                hidden;
+        }
+
+        .queue-panel {
+            display:
+                flex;
+
+            flex-direction:
+                column;
+        }
+
+        .panel-header,
+        .telemetry-header {
+            padding:
+                16px;
+
+            border-bottom:
+                1px solid var(--line-soft);
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                space-between;
+
+            gap:
+                12px;
+        }
+
+        .panel-heading {
+            font-size:
+                13px;
+
+            font-weight:
+                750;
+
+            letter-spacing:
+                .08em;
+
+            text-transform:
+                uppercase;
+        }
+
+        .panel-note {
+            color:
+                var(--muted-2);
+
+            font-size:
+                11px;
+
+            margin-top:
+                4px;
+        }
+
+        .queue-list {
+            padding:
+                10px;
+
+            overflow:
+                auto;
+        }
+
+        .incident-card {
+            width:
+                100%;
+
+            text-align:
+                left;
+
+            color:
+                var(--text);
+
+            background:
+                transparent;
+
+            border:
+                1px solid transparent;
+
+            border-radius:
+                12px;
+
+            padding:
+                13px;
+
+            cursor:
+                pointer;
+
+            transition:
+                .18s ease;
+
+            margin-bottom:
+                7px;
+        }
+
+        .incident-card:hover {
+            background:
+                rgba(116,92,242,.04);
+
+            border-color:
+                var(--line);
+        }
+
+        .incident-card.active {
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(116,92,242,.12),
+                    rgba(116,92,242,.05)
+                );
+
+            border-color:
+                rgba(116,92,242,.28);
+        }
+
+        body.dark .incident-card.active {
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(139,124,255,.14),
+                    rgba(139,124,255,.05)
+                );
+
+            border-color:
+                rgba(139,124,255,.30);
+        }
+
+        .incident-top {
+            display:
+                flex;
+
+            justify-content:
+                space-between;
+
+            align-items:
+                flex-start;
+
+            gap:
+                10px;
+        }
+
+        .severity {
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            gap:
+                6px;
+
+            font-size:
+                10px;
+
+            font-weight:
+                750;
+
+            text-transform:
+                uppercase;
+
+            letter-spacing:
+                .08em;
+        }
+
+        .severity-dot {
+            width:
+                7px;
+
+            height:
+                7px;
+
+            border-radius:
+                50%;
+        }
+
+        .severity-critical {
+            color:
+                var(--red);
+        }
+
+        .severity-critical .severity-dot {
+            background:
+                var(--red);
+        }
+
+        .severity-high {
+            color:
+                var(--amber);
+        }
+
+        .severity-high .severity-dot {
+            background:
+                var(--amber);
+        }
+
+        .severity-medium {
+            color:
+                var(--violet);
+        }
+
+        .severity-medium .severity-dot {
+            background:
+                var(--violet);
+        }
+
+        .risk-pill {
+            min-width:
+                38px;
+
+            padding:
+                5px 7px;
+
+            text-align:
+                center;
+
+            border-radius:
+                8px;
+
+            background:
+                rgba(128,145,165,.10);
+
+            color:
+                var(--text);
+
+            font-size:
+                12px;
+
+            font-weight:
+                750;
+        }
+
+        .incident-title {
+            margin-top:
+                10px;
+
+            font-size:
+                13px;
+
+            font-weight:
+                750;
+
+            line-height:
+                1.35;
+        }
+
+        .incident-meta {
+            margin-top:
+                8px;
+
+            display:
+                flex;
+
+            gap:
+                8px;
+
+            flex-wrap:
+                wrap;
+
+            color:
+                var(--muted);
+
+            font-size:
+                11px;
+        }
+
+        .incident-meta span {
+            padding-right:
+                8px;
+
+            border-right:
+                1px solid var(--line);
+        }
+
+        .incident-meta span:last-child {
+            border-right:
+                0;
+        }
+
+        /* =========================================================
+           DETAIL
+        ========================================================= */
+
+        .detail-panel {
+            display:
+                flex;
+
+            flex-direction:
+                column;
+        }
+
+        .detail-header {
+            padding:
+                18px 20px;
+
+            border-bottom:
+                1px solid var(--line-soft);
+        }
+
+        .breadcrumb {
+            margin-bottom:
+                12px;
+
+            color:
+                var(--muted-2);
+
+            font-size:
+                11px;
+        }
+
+        .detail-title-row {
+            display:
+                flex;
+
+            justify-content:
+                space-between;
+
+            align-items:
+                flex-start;
+
+            gap:
+                20px;
+        }
+
+        .detail-title {
+            margin:
+                0;
+
+            font-size:
+                clamp(
+                    21px,
+                    2.1vw,
+                    29px
+                );
+
+            line-height:
+                1.14;
+
+            letter-spacing:
+                -.025em;
+        }
+
+        .detail-subtitle {
+            max-width:
+                780px;
+
+            margin-top:
+                7px;
+
+            color:
+                var(--muted);
+
+            font-size:
+                12px;
+
+            line-height:
+                1.5;
+        }
+
+        .risk-hero {
+            min-width:
+                112px;
+
+            padding:
+                10px 13px;
+
+            border:
+                1px solid
+                rgba(230,76,101,.24);
+
+            border-radius:
+                13px;
+
+            background:
+                var(--red-soft);
+
+            text-align:
+                center;
+        }
+
+        .risk-hero strong {
+            display:
+                block;
+
+            font-size:
+                28px;
+
+            line-height:
+                1;
+        }
+
+        .risk-hero span {
+            color:
+                var(--red);
+
+            font-size:
+                10px;
+
+            text-transform:
+                uppercase;
+
+            letter-spacing:
+                .09em;
+        }
+
+        .detail-grid {
+            flex:
+                1;
+
+            display:
+                grid;
+
+            grid-template-columns:
+                minmax(0, 1.25fr)
+                minmax(310px, .75fr);
+
+            min-height:
+                0;
+        }
+
+        .evidence-column {
+            min-width:
+                0;
+
+            border-right:
+                1px solid var(--line-soft);
+        }
+
+        .analysis-column {
+            min-width:
+                0;
+
+            overflow:
+                auto;
+        }
+
+        .section {
+            padding:
+                18px 20px;
+
+            border-bottom:
+                1px solid var(--line-soft);
+        }
+
+        .section:last-child {
+            border-bottom:
+                0;
+        }
+
+        .section-title {
+            font-size:
+                11px;
+
+            font-weight:
+                750;
+
+            letter-spacing:
+                .10em;
+
+            text-transform:
+                uppercase;
+        }
+
+        .section-description {
+            margin-top:
+                5px;
+
+            color:
+                var(--muted);
+
+            font-size:
+                12px;
+
+            line-height:
+                1.5;
+        }
+
+        /* =========================================================
+           EVIDENCE
+        ========================================================= */
+
+        .evidence-timeline {
+            margin-top:
+                16px;
+        }
+
+        .evidence-item {
+            position:
+                relative;
+
+            padding:
+                0
+                0
+                18px
+                27px;
+        }
+
+        .evidence-item:last-child {
+            padding-bottom:
+                2px;
+        }
+
+        .evidence-item::before {
+            content:
+                "";
+
+            position:
+                absolute;
+
+            left:
+                8px;
+
+            top:
+                8px;
+
+            bottom:
+                -3px;
+
+            width:
+                1px;
+
+            background:
+                var(--line);
+        }
+
+        .evidence-item:last-child::before {
+            display:
+                none;
+        }
+
+        .evidence-item::after {
+            content:
+                "";
+
+            position:
+                absolute;
+
+            left:
+                4px;
+
+            top:
+                4px;
+
+            width:
+                9px;
+
+            height:
+                9px;
+
+            border-radius:
+                50%;
+
+            background:
+                var(--panel);
+
+            border:
+                2px solid var(--violet);
+
+            box-shadow:
+                0 0 0 4px
+                rgba(116,92,242,.08);
+        }
+
+        .evidence-time {
+            color:
+                var(--muted-2);
+
+            font-size:
+                10px;
+
+            font-variant-numeric:
+                tabular-nums;
+        }
+
+        .evidence-event {
+            margin-top:
+                4px;
+
+            font-size:
+                12px;
+
+            font-weight:
+                750;
+        }
+
+        .evidence-sub {
+            margin-top:
+                3px;
+
+            color:
+                var(--muted);
+
+            font-size:
+                11px;
+        }
+
+        .correlation-box {
+            margin-top:
+                15px;
+
+            padding:
+                12px;
+
+            border-radius:
+                12px;
+
+            background:
+                rgba(20,175,209,.045);
+
+            border:
+                1px solid
+                rgba(20,175,209,.12);
+        }
+
+        .correlation-heading {
+            color:
+                var(--cyan);
+
+            font-size:
+                10px;
+
+            text-transform:
+                uppercase;
+
+            letter-spacing:
+                .10em;
+
+            font-weight:
+                750;
+        }
+
+        .correlation-list {
+            display:
+                flex;
+
+            flex-wrap:
+                wrap;
+
+            gap:
+                7px;
+
+            margin-top:
+                9px;
+        }
+
+        .chip {
+            padding:
+                5px 8px;
+
+            border-radius:
+                999px;
+
+            background:
+                rgba(128,145,165,.08);
+
+            border:
+                1px solid var(--line);
+
+            color:
+                var(--text-secondary);
+
+            font-size:
+                10px;
+        }
+
+        /* =========================================================
+           RISK
+        ========================================================= */
+
+        .factor {
+            display:
+                grid;
+
+            grid-template-columns:
+                1fr auto;
+
+            gap:
+                12px;
+
+            padding:
+                10px 0;
+
+            border-bottom:
+                1px solid var(--line-soft);
+        }
+
+        .factor:last-child {
+            border-bottom:
+                0;
+        }
+
+        .factor-name {
+            color:
+                var(--text);
+
+            font-size:
+                11px;
+        }
+
+        .factor-evidence {
+            margin-top:
+                3px;
+
+            color:
+                var(--muted-2);
+
+            font-size:
+                10px;
+        }
+
+        .factor-score {
+            color:
+                var(--red);
+
+            font-size:
+                12px;
+
+            font-weight:
+                750;
+        }
+
+        /* =========================================================
+           AI
+        ========================================================= */
+
+        .ai-card {
+            margin-top:
+                13px;
+
+            padding:
+                13px;
+
+            border-radius:
+                13px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(116,92,242,.09),
+                    rgba(20,175,209,.03)
+                );
+
+            border:
+                1px solid
+                rgba(116,92,242,.18);
+        }
+
+        .ai-label {
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            gap:
+                6px;
+
+            color:
+                var(--violet);
+
+            font-size:
+                10px;
+
+            font-weight:
+                800;
+
+            text-transform:
+                uppercase;
+
+            letter-spacing:
+                .10em;
+        }
+
+        .ai-hypothesis {
+            margin-top:
+                10px;
+
+            color:
+                var(--text);
+
+            font-size:
+                13px;
+
+            line-height:
+                1.55;
+        }
+
+        .confidence-row {
+            display:
+                flex;
+
+            justify-content:
+                space-between;
+
+            gap:
+                10px;
+
+            margin-top:
+                14px;
+
+            color:
+                var(--muted);
+
+            font-size:
+                11px;
+        }
+
+        .confidence-bar {
+            height:
+                6px;
+
+            margin-top:
+                7px;
+
+            overflow:
+                hidden;
+
+            border-radius:
+                999px;
+
+            background:
+                var(--line);
+        }
+
+        .confidence-fill {
+            width:
+                78%;
+
+            height:
+                100%;
+
+            border-radius:
+                inherit;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--violet),
+                    var(--cyan)
+                );
+        }
+
+        .list-clean {
+            margin:
+                10px 0 0;
+
+            padding-left:
+                15px;
+
+            color:
+                var(--text-secondary);
+
+            font-size:
+                11px;
+
+            line-height:
+                1.7;
+        }
+
+        /* =========================================================
+           NEXT CHECKS
+        ========================================================= */
+
+        .next-checks {
+            display:
+                grid;
+
+            gap:
+                8px;
+
+            margin-top:
+                11px;
+        }
+
+        .next-check {
+            display:
+                flex;
+
+            align-items:
+                flex-start;
+
+            gap:
+                8px;
+
+            color:
+                var(--text-secondary);
+
+            font-size:
+                11px;
+        }
+
+        .step-index {
+            flex:
+                0 0 auto;
+
+            width:
+                19px;
+
+            height:
+                19px;
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            border-radius:
+                6px;
+
+            background:
+                var(--violet-soft);
+
+            color:
+                var(--violet);
+
+            font-size:
+                10px;
+
+            font-weight:
+                750;
+        }
+
+        /* =========================================================
+           TELEMETRY
+        ========================================================= */
+
+        .telemetry {
+            margin-top:
+                14px;
+
+            overflow:
+                hidden;
+        }
+
+        .telemetry-header {
+            padding:
+                13px 16px;
+        }
+
+        .live-count {
+            color:
+                var(--muted);
+
+            font-size:
+                10px;
+        }
+
+        .telemetry-list {
+            display:
+                grid;
+
+            max-height:
+                220px;
+
+            overflow:
+                auto;
+        }
+
+        .telemetry-row {
+            display:
+                grid;
+
+            grid-template-columns:
+                72px
+                70px
+                minmax(0, 1fr)
+                100px;
+
+            gap:
+                12px;
+
+            align-items:
+                center;
+
+            padding:
+                10px 16px;
+
+            border-bottom:
+                1px solid var(--line-soft);
+
+            font-size:
+                10px;
+        }
+
+        .telemetry-row:last-child {
+            border-bottom:
+                0;
+        }
+
+        .telemetry-time,
+        .telemetry-source,
+        .telemetry-id {
+            color:
+                var(--muted-2);
+
+            font-variant-numeric:
+                tabular-nums;
+        }
+
+        .telemetry-event {
+            color:
+                var(--text-secondary);
+
+            white-space:
+                nowrap;
+
+            overflow:
+                hidden;
+
+            text-overflow:
+                ellipsis;
+        }
+
+        .telemetry-id {
+            text-align:
+                right;
+        }
+
+        .empty-telemetry {
+            padding:
+                24px 16px;
+
+            color:
+                var(--muted);
+
+            font-size:
+                11px;
+
+            text-align:
+                center;
+        }
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
+        @media (max-width: 1050px) {
+
+            .workspace {
+                grid-template-columns:
+                    1fr;
+            }
+
+            .queue-panel {
+                max-height:
+                    310px;
+            }
+
+            .detail-grid {
+                grid-template-columns:
+                    1fr;
+            }
+
+            .evidence-column {
+                border-right:
+                    0;
+
+                border-bottom:
+                    1px solid var(--line-soft);
+            }
+        }
+
+        @media (max-width: 800px) {
+
+            .topbar {
+                flex-direction:
+                    column;
+
+                align-items:
+                    flex-start;
+            }
+
+            .header-right {
+                width:
+                    100%;
+
+                justify-content:
+                    space-between;
+            }
+
+            .summary-grid {
+                grid-template-columns:
+                    repeat(
+                        2,
+                        minmax(0,1fr)
+                    );
+            }
+        }
+
+        @media (max-width: 560px) {
+
+            .app-shell {
+                width:
+                    calc(100% - 20px);
+            }
+
+            .brand-logo {
+                width:
+                    210px;
+            }
+
+            .header-right {
+                flex-direction:
+                    column;
+
+                align-items:
+                    flex-start;
+            }
+
+            .system-status {
+                width:
+                    100%;
+
+                justify-content:
+                    center;
+            }
+
+            .summary-grid {
+                grid-template-columns:
+                    1fr;
+            }
+
+            .detail-title-row {
+                flex-direction:
+                    column;
+            }
+
+            .risk-hero {
+                width:
+                    100%;
+            }
+
+            .telemetry-row {
+                grid-template-columns:
+                    62px
+                    58px
+                    minmax(0,1fr);
+            }
+
+            .telemetry-id {
+                display:
+                    none;
+            }
+        }
+    </style>
+</head>
+
+
+<body class="dark">
+
+<div class="app-shell">
+
+    <!-- =========================================================
+         HEADER
+    ========================================================== -->
+
+    <header class="topbar">
+
+        <div class="brand-block">
+
+            <div class="logo-plate">
+
+                <img
+                    src="assets/sentra-log.png"
+                    alt="SENTRA"
+                    class="brand-logo"
+                />
+
+            </div>
+
+            <div class="brand-subtitle">
+                Evidence-first security incident intelligence
+            </div>
+
+        </div>
+
+
+        <div class="header-right">
+
+            <div class="theme-toggle">
+
+                <button
+                    id="lightBtn"
+                    class="theme-button"
+                    type="button"
+                >
+                    ☀ Light
+                </button>
+
+                <button
+                    id="darkBtn"
+                    class="theme-button active"
+                    type="button"
+                >
+                    ◐ Dark
+                </button>
+
+            </div>
+
+
+            <div class="system-status">
+
+                <span
+                    id="statusDot"
+                    class="status-dot"
+                ></span>
+
+                <span id="statusText">
+                    Connecting to live telemetry…
+                </span>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================================================
+         SUMMARY
+    ========================================================== -->
+
+    <section
+        class="summary-grid"
+        aria-label="Incident summary"
+    >
+
+        <article class="summary-card">
+
+            <div class="summary-label">
+                Critical
+            </div>
+
+            <div class="summary-value">
+
+                <strong>
+                    1
+                </strong>
+
+                <span class="summary-detail">
+                    requires review
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-label">
+                High
+            </div>
+
+            <div class="summary-value">
+
+                <strong>
+                    2
+                </strong>
+
+                <span class="summary-detail">
+                    active incidents
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-label">
+                Medium
+            </div>
+
+            <div class="summary-value">
+
+                <strong>
+                    4
+                </strong>
+
+                <span class="summary-detail">
+                    monitoring
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-label">
+                Events observed
+            </div>
+
+            <div class="summary-value">
+
+                <strong id="eventCount">
+                    0
+                </strong>
+
+                <span class="summary-detail">
+                    this session
+                </span>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- =========================================================
+         WORKSPACE
+    ========================================================== -->
+
+    <main class="workspace">
+
+
+        <!-- INCIDENT QUEUE -->
+
+        <aside class="panel queue-panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <div class="panel-heading">
+                        Incident Queue
+                    </div>
+
+                    <div class="panel-note">
+                        Prioritized from correlated activity
+                    </div>
+
+                </div>
+
+
+                <div class="risk-pill">
+                    3 active
+                </div>
+
+            </div>
+
+
+            <div
+                id="incidentQueue"
+                class="queue-list"
+            ></div>
+
+        </aside>
+
+
+        <!-- INCIDENT DETAIL -->
+
+        <section class="panel detail-panel">
+
+            <div class="detail-header">
+
+                <div class="breadcrumb">
+                    INCIDENTS / ACTIVE / EVIDENCE VIEW
+                </div>
+
+
+                <div class="detail-title-row">
+
+                    <div>
+
+                        <h1
+                            id="detailTitle"
+                            class="detail-title"
+                        >
+                            Possible account compromise
+                        </h1>
+
+
+                        <div
+                            id="detailSubtitle"
+                            class="detail-subtitle"
+                        >
+                            Suspicious authentication activity involving
+                            the same identity across Windows and application telemetry.
+                        </div>
+
+                    </div>
+
+
+                    <div class="risk-hero">
+
+                        <strong id="detailRisk">
+                            82
+                        </strong>
+
+                        <span>
+                            Risk score
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="detail-grid">
+
+
+                <!-- EVIDENCE -->
+
+                <div class="evidence-column">
+
+                    <section class="section">
+
+                        <div class="section-title">
+                            What happened?
+                        </div>
+
+                        <div
+                            id="detailSummary"
+                            class="section-description"
+                        >
+                            Multiple authentication failures and related application
+                            activity were observed for the same user within a short
+                            correlation window.
+                        </div>
+
+                    </section>
+
+
+                    <section class="section">
+
+                        <div class="section-title">
+                            Evidence / Timeline
+                        </div>
+
+                        <div class="section-description">
+                            The incident is grounded in observable events,
+                            not the AI explanation.
+                        </div>
+
+
+                        <div
+                            id="timeline"
+                            class="evidence-timeline"
+                        ></div>
+
+
+                        <div class="correlation-box">
+
+                            <div class="correlation-heading">
+                                SENTRA correlation
+                            </div>
+
+
+                            <div
+                                id="correlationChips"
+                                class="correlation-list"
+                            ></div>
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+
+                <!-- ANALYSIS -->
+
+                <aside class="analysis-column">
+
+
+                    <section class="section">
+
+                        <div class="section-title">
+                            Why flagged?
+                        </div>
+
+                        <div class="section-description">
+                            Risk contributors are tied back to specific
+                            supporting evidence.
+                        </div>
+
+
+                        <div
+                            id="riskFactors"
+                        ></div>
+
+                    </section>
+
+
+                    <section class="section">
+
+                        <div class="section-title">
+                            AI analysis
+                        </div>
+
+
+                        <div class="ai-card">
+
+                            <div class="ai-label">
+
+                                <span>
+                                    ✦
+                                </span>
+
+                                Structured analyst result
+
+                            </div>
+
+
+                            <div
+                                id="aiHypothesis"
+                                class="ai-hypothesis"
+                            ></div>
+
+
+                            <div class="confidence-row">
+
+                                <span>
+                                    Confidence
+                                </span>
+
+                                <strong
+                                    id="aiConfidence"
+                                >
+                                    78%
+                                </strong>
+
+                            </div>
+
+
+                            <div class="confidence-bar">
+
+                                <div
+                                    id="confidenceFill"
+                                    class="confidence-fill"
+                                ></div>
+
+                            </div>
+
+
+                            <div
+                                class="section-description"
+                                style="
+                                    margin-top:15px;
+                                    text-transform:uppercase;
+                                    letter-spacing:.08em;
+                                    font-size:10px;
+                                "
+                            >
+                                Supporting evidence
+                            </div>
+
+
+                            <ul
+                                id="supportingEvidence"
+                                class="list-clean"
+                            ></ul>
+
+
+                            <div
+                                class="section-description"
+                                style="
+                                    margin-top:13px;
+                                    text-transform:uppercase;
+                                    letter-spacing:.08em;
+                                    font-size:10px;
+                                "
+                            >
+                                Missing evidence
+                            </div>
+
+
+                            <ul
+                                id="missingEvidence"
+                                class="list-clean"
+                            ></ul>
+
+                        </div>
+
+                    </section>
+
+
+                    <section class="section">
+
+                        <div class="section-title">
+                            Next investigation
+                        </div>
+
+                        <div class="section-description">
+                            The next step stays explicit and actionable.
+                        </div>
+
+
+                        <div
+                            id="nextChecks"
+                            class="next-checks"
+                        ></div>
+
+                    </section>
+
+
+                </aside>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================================================
+         TELEMETRY
+    ========================================================== -->
+
+    <section class="telemetry">
+
+        <div class="telemetry-header">
+
+            <div>
+
+                <div class="panel-heading">
+                    Live Security Activity
+                </div>
+
+                <div class="panel-note">
+                    Raw telemetry supports the incident experience
+                </div>
+
+            </div>
+
+
+            <div
+                id="liveCount"
+                class="live-count"
+            >
+                Waiting for events…
+            </div>
+
+        </div>
+
+
+        <div
+            id="telemetryList"
+            class="telemetry-list"
+        >
+
+            <div class="empty-telemetry">
+                Waiting for real security telemetry…
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<script>
+
+    /* =========================================================
+       MOCK INCIDENT DATA
+    ========================================================= */
+
+    const MOCK_INCIDENTS = [
+
+        {
+            id: "inc-001",
+
+            title:
+                "Possible account compromise",
+
+            severity:
+                "critical",
+
+            risk:
+                82,
+
+            user:
+                "vaishnav",
+
+            host:
+                "VAISHNAV-G15",
+
+            relatedEvents:
+                4,
+
+            summary:
+                "Multiple authentication failures and related application activity were observed for the same user within a short correlation window.",
+
+            subtitle:
+                "Suspicious authentication activity involving the same identity across Windows and application telemetry.",
+
+            factors: [
+
+                [
+                    "Authentication failure",
+                    "+20",
+                    "event-1"
+                ],
+
+                [
+                    "Application access anomaly",
+                    "+25",
+                    "event-2"
+                ],
+
+                [
+                    "Same entity",
+                    "+15",
+                    "event-1, event-2"
+                ],
+
+                [
+                    "Short correlation window",
+                    "+12",
+                    "event-1 → event-3"
+                ]
+
+            ],
+
+            timeline: [
+
+                [
+                    "10:42:12",
+                    "Windows authentication failure",
+                    "User: vaishnav · Event 4625"
+                ],
+
+                [
+                    "10:42:14",
+                    "Application authentication failure",
+                    "User: vaishnav · authentication_failure"
+                ],
+
+                [
+                    "10:42:15",
+                    "Restricted endpoint attempt",
+                    "User: vaishnav · /admin/reports"
+                ],
+
+                [
+                    "10:42:16",
+                    "Explicit credentials observed",
+                    "User: vaishnav · Event 4648"
+                ]
+
+            ],
+
+            correlation: [
+
+                "Same identity",
+                "Related context",
+                "Short time window",
+                "Cross-source activity"
+
+            ],
+
+            ai: {
+
+                hypothesis:
+                    "Suspicious authentication activity may indicate an attempted compromise of the account.",
+
+                confidence:
+                    78,
+
+                supporting: [
+
+                    "3 authentication failures",
+                    "Related application activity",
+                    "Same user identity"
+
+                ],
+
+                missing: [
+
+                    "Endpoint process context",
+                    "Prior normal login pattern"
+
+                ],
+
+                next: [
+
+                    "Review recent authentication history",
+                    "Inspect recent application activity",
+                    "Check for additional activity from the same identity"
+
+                ]
+
+            }
+
+        },
+
+
+        {
+            id:
+                "inc-002",
+
+            title:
+                "Suspicious privileged access",
+
+            severity:
+                "high",
+
+            risk:
+                61,
+
+            user:
+                "vaishnav",
+
+            host:
+                "VAISHNAV-G15",
+
+            relatedEvents:
+                3,
+
+            summary:
+                "A protected application resource was accessed shortly after authentication anomalies for the same identity.",
+
+            subtitle:
+                "A restricted resource attempt was correlated with recent authentication activity.",
+
+            factors: [
+
+                [
+                    "Restricted resource attempt",
+                    "+22",
+                    "event-5"
+                ],
+
+                [
+                    "Recent authentication failure",
+                    "+16",
+                    "event-4"
+                ],
+
+                [
+                    "Same identity",
+                    "+13",
+                    "event-4, event-5"
+                ]
+
+            ],
+
+            timeline: [
+
+                [
+                    "10:44:03",
+                    "Application authentication success",
+                    "User: vaishnav · authentication_success"
+                ],
+
+                [
+                    "10:44:04",
+                    "Protected API request",
+                    "GET /admin/reports"
+                ],
+
+                [
+                    "10:44:05",
+                    "Authorization failure",
+                    "Role: user · resource: admin/reports"
+                ]
+
+            ],
+
+            correlation: [
+
+                "Same identity",
+                "Protected resource",
+                "Temporal proximity"
+
+            ],
+
+            ai: {
+
+                hypothesis:
+                    "The sequence is consistent with an unusual attempt to access a protected application resource.",
+
+                confidence:
+                    71,
+
+                supporting: [
+
+                    "Protected endpoint access",
+                    "Authorization failure",
+                    "Same identity"
+
+                ],
+
+                missing: [
+
+                    "Expected role for the user",
+                    "Historical access pattern"
+
+                ],
+
+                next: [
+
+                    "Review the user's expected role",
+                    "Compare recent resource access",
+                    "Inspect related authentication events"
+
+                ]
+
+            }
+
+        },
+
+
+        {
+            id:
+                "inc-003",
+
+            title:
+                "Abnormal request burst",
+
+            severity:
+                "medium",
+
+            risk:
+                44,
+
+            user:
+                "vaishnav",
+
+            host:
+                "VAISHNAV-G15",
+
+            relatedEvents:
+                6,
+
+            summary:
+                "A short burst of application requests was observed outside the user's recent activity pattern.",
+
+            subtitle:
+                "Application request volume is elevated within a narrow time window.",
+
+            factors: [
+
+                [
+                    "Request burst",
+                    "+18",
+                    "event-7"
+                ],
+
+                [
+                    "Short time window",
+                    "+11",
+                    "event-7, event-8"
+                ],
+
+                [
+                    "Same application context",
+                    "+8",
+                    "event-7, event-8"
+                ]
+
+            ],
+
+            timeline: [
+
+                [
+                    "10:51:02",
+                    "API request burst detected",
+                    "18 requests / 2 sec"
+                ],
+
+                [
+                    "10:51:03",
+                    "Repeated endpoint access",
+                    "GET /api/profile"
+                ],
+
+                [
+                    "10:51:04",
+                    "Request rate returned to baseline",
+                    "Pattern subsided"
+                ]
+
+            ],
+
+            correlation: [
+
+                "Request burst",
+                "Same application",
+                "Short time window"
+
+            ],
+
+            ai: {
+
+                hypothesis:
+                    "The request pattern is unusual enough to warrant checking whether the activity was expected.",
+
+                confidence:
+                    64,
+
+                supporting: [
+
+                    "Elevated request volume",
+                    "Narrow time window",
+                    "Same application context"
+
+                ],
+
+                missing: [
+
+                    "User intent",
+                    "Baseline over a longer period"
+
+                ],
+
+                next: [
+
+                    "Check whether the burst was expected",
+                    "Review adjacent API requests"
+
+                ]
+
+            }
+
+        }
+
+    ];
+
+
+    /* =========================================================
+       STATE
+    ========================================================= */
+
+    let selectedIncidentId =
+        MOCK_INCIDENTS[0].id;
+
+    let receivedEvents =
+        0;
+
+    let socket =
+        null;
+
+
+    const $ =
+        (id) =>
+            document.getElementById(id);
+
+
+    /* =========================================================
+       THEME
+    ========================================================= */
+
+    function setTheme(theme) {
+
+        const dark =
+            theme === "dark";
+
+
+        document.body.classList.toggle(
+            "dark",
+            dark
+        );
+
+
+        $("darkBtn")
+            .classList
+            .toggle(
+                "active",
+                dark
+            );
+
+
+        $("lightBtn")
+            .classList
+            .toggle(
+                "active",
+                !dark
+            );
+
+
+        localStorage.setItem(
+            "sentra-theme",
+            theme
+        );
+
+    }
+
+
+    const savedTheme =
+        localStorage.getItem(
+            "sentra-theme"
+        );
+
+
+    setTheme(
+        savedTheme === "light"
+            ? "light"
+            : "dark"
+    );
+
+
+    $("darkBtn")
+        .addEventListener(
+            "click",
+            () =>
+                setTheme("dark")
+        );
+
+
+    $("lightBtn")
+        .addEventListener(
+            "click",
+            () =>
+                setTheme("light")
+        );
+
+
+    /* =========================================================
+       INCIDENT QUEUE
+    ========================================================= */
+
+    function renderQueue() {
+
+        $("incidentQueue")
+            .innerHTML =
+
+            MOCK_INCIDENTS
+
+                .map(
+                    (incident) => `
+
+                        <button
+                            class="
+                                incident-card
+                                ${
+                                    incident.id ===
+                                    selectedIncidentId
+                                        ? "active"
+                                        : ""
+                                }
+                            "
+                            data-id="${incident.id}"
+                        >
+
+                            <div
+                                class="incident-top"
+                            >
+
+                                <span
+                                    class="
+                                        severity
+                                        severity-${incident.severity}
+                                    "
+                                >
+
+                                    <span
+                                        class="severity-dot"
+                                    ></span>
+
+                                    ${incident.severity}
+
+                                </span>
+
+
+                                <span
+                                    class="risk-pill"
+                                >
+                                    ${incident.risk}
+                                </span>
+
+                            </div>
+
+
+                            <div
+                                class="incident-title"
+                            >
+                                ${incident.title}
+                            </div>
+
+
+                            <div
+                                class="incident-meta"
+                            >
+
+                                <span>
+                                    ${incident.user}
+                                </span>
+
+                                <span>
+                                    ${incident.relatedEvents}
+                                    events
+                                </span>
+
+                            </div>
+
+                        </button>
+
+                    `
+                )
+
+                .join("");
+
+
+        document
+            .querySelectorAll(
+                ".incident-card"
+            )
+            .forEach(
+                (button) => {
+
+                    button.addEventListener(
+                        "click",
+                        () => {
+
+                            selectedIncidentId =
+                                button.dataset.id;
+
+                            renderQueue();
+
+                            renderIncident();
+
+                        }
+                    );
+
+                }
+            );
+
+    }
+
+
+    /* =========================================================
+       INCIDENT DETAIL
+    ========================================================= */
+
+    function renderIncident() {
+
+        const incident =
+
+            MOCK_INCIDENTS.find(
+                (item) =>
+                    item.id ===
+                    selectedIncidentId
+            ) ||
+            MOCK_INCIDENTS[0];
+
+
+        $("detailTitle")
+            .textContent =
+                incident.title;
+
+
+        $("detailSubtitle")
+            .textContent =
+                incident.subtitle;
+
+
+        $("detailRisk")
+            .textContent =
+                incident.risk;
+
+
+        $("detailSummary")
+            .textContent =
+                incident.summary;
+
+
+        $("timeline")
+            .innerHTML =
+
+            incident.timeline
+
+                .map(
+                    ([time, event, sub]) => `
+
+                        <div
+                            class="evidence-item"
+                        >
+
+                            <div
+                                class="evidence-time"
+                            >
+                                ${time}
+                            </div>
+
+                            <div
+                                class="evidence-event"
+                            >
+                                ${event}
+                            </div>
+
+                            <div
+                                class="evidence-sub"
+                            >
+                                ${sub}
+                            </div>
+
+                        </div>
+
+                    `
+                )
+
+                .join("");
+
+
+        $("correlationChips")
+            .innerHTML =
+
+            incident.correlation
+
+                .map(
+                    (item) =>
+                        `
+                            <span class="chip">
+                                ${item}
+                            </span>
+                        `
+                )
+
+                .join("");
+
+
+        $("riskFactors")
+            .innerHTML =
+
+            incident.factors
+
+                .map(
+                    ([name, score, evidence]) => `
+
+                        <div
+                            class="factor"
+                        >
+
+                            <div>
+
+                                <div
+                                    class="factor-name"
+                                >
+                                    ${name}
+                                </div>
+
+                                <div
+                                    class="factor-evidence"
+                                >
+                                    Evidence:
+                                    ${evidence}
+                                </div>
+
+                            </div>
+
+
+                            <div
+                                class="factor-score"
+                            >
+                                ${score}
+                            </div>
+
+                        </div>
+
+                    `
+                )
+
+                .join("");
+
+
+        const ai =
+            incident.ai;
+
+
+        $("aiHypothesis")
+            .textContent =
+                ai.hypothesis;
+
+
+        $("aiConfidence")
+            .textContent =
+                `${ai.confidence}%`;
+
+
+        $("confidenceFill")
+            .style.width =
+                `${ai.confidence}%`;
+
+
+        $("supportingEvidence")
+            .innerHTML =
+
+            ai.supporting
+
+                .map(
+                    (item) =>
+                        `<li>${item}</li>`
+                )
+
+                .join("");
+
+
+        $("missingEvidence")
+            .innerHTML =
+
+            ai.missing
+
+                .map(
+                    (item) =>
+                        `<li>${item}</li>`
+                )
+
+                .join("");
+
+
+        $("nextChecks")
+            .innerHTML =
+
+            ai.next
+
+                .map(
+                    (item, index) => `
+
+                        <div
+                            class="next-check"
+                        >
+
+                            <span
+                                class="step-index"
+                            >
+                                ${index + 1}
+                            </span>
+
+                            <span>
+                                ${item}
+                            </span>
+
+                        </div>
+
+                    `
+                )
+
+                .join("");
+
+    }
+
+
+    /* =========================================================
+       LIVE TELEMETRY
+    ========================================================= */
+
+    function addTelemetryEvent(event) {
+
+        receivedEvents +=
+            1;
+
+
+        $("eventCount")
+            .textContent =
+                receivedEvents;
+
+
+        $("liveCount")
+            .textContent =
+
+            `${receivedEvents} event${
+                receivedEvents === 1
+                    ? ""
+                    : "s"
+            } received`;
+
+
+        const list =
+            $("telemetryList");
+
+
+        if (
+            list.querySelector(
+                ".empty-telemetry"
+            )
+        ) {
+
+            list.innerHTML =
+                "";
+
+        }
+
+
+        const timestamp =
+
+            event.timestamp
+
+                ? new Date(
+                    event.timestamp
+                )
+
+                : new Date();
+
+
+        const time =
+
+            Number.isNaN(
+                timestamp.getTime()
+            )
+
+                ? "--:--:--"
+
+                : timestamp.toLocaleTimeString(
+                    [],
+                    {
+                        hour12:
+                            false
+                    }
+                );
+
+
+        const eventName =
+
+            event.event_name ||
+
+            event.event_type ||
+
+            "security event";
+
+
+        const source =
+            event.source ||
+            "unknown";
+
+
+        const id =
+
+            event.event_id ??
+            event.id ??
+            "—";
+
+
+        const row =
+            document.createElement(
+                "div"
+            );
+
+
+        row.className =
+            "telemetry-row";
+
+
+        row.innerHTML = `
+
+            <span
+                class="telemetry-time"
+            >
+                ${time}
+            </span>
+
+
+            <span
+                class="telemetry-source"
+            >
+                ${escapeHtml(
+                    String(source)
+                )}
+            </span>
+
+
+            <span
+                class="telemetry-event"
+            >
+                ${escapeHtml(
+                    String(eventName)
+                )}
+            </span>
+
+
+            <span
+                class="telemetry-id"
+            >
+                ${escapeHtml(
+                    String(id)
+                )}
+            </span>
+
+        `;
+
+
+        list.prepend(
+            row
+        );
+
+
+        while (
+            list.children.length >
+            40
+        ) {
+
+            list.removeChild(
+                list.lastChild
+            );
+
+        }
+
+    }
+
+
+    /* =========================================================
+       ESCAPE
+    ========================================================= */
+
+    function escapeHtml(value) {
+
+        return value.replace(
+            /[&<>'"]/g,
+            (char) => ({
+
+                "&":
+                    "&amp;",
+
+                "<":
+                    "&lt;",
+
+                ">":
+                    "&gt;",
+
+                "'":
+                    "&#39;",
+
+                '"':
+                    "&quot;"
+
+            }[char])
+        );
+
+    }
+
+
+    /* =========================================================
+       STATUS
+    ========================================================= */
+
+    function setStatus(
+        online,
+        label
+    ) {
+
+        $("statusDot")
+            .classList
+            .toggle(
+                "live",
+                online
+            );
+
+
+        $("statusText")
+            .textContent =
+                label;
+
+    }
+
+
+    /* =========================================================
+       WEBSOCKET
+    ========================================================= */
+
+    function connectLiveTelemetry() {
+
+        try {
+
+            socket =
+
+                new WebSocket(
+                    "ws://127.0.0.1:8000/ws/events"
+                );
+
+
+            socket.onopen =
+                () => {
+
+                    setStatus(
+                        true,
+                        "System live · receiving telemetry"
+                    );
+
+                };
+
+
+            socket.onmessage =
+                (message) => {
+
+                    try {
+
+                        addTelemetryEvent(
+                            JSON.parse(
+                                message.data
+                            )
+                        );
+
+                    }
+
+                    catch {
+
+                        console.warn(
+                            "SENTRA received a non-JSON WebSocket message."
+                        );
+
+                    }
+
+                };
+
+
+            socket.onerror =
+                () => {
+
+                    setStatus(
+                        false,
+                        "Backend unavailable · UI running locally"
+                    );
+
+                };
+
+
+            socket.onclose =
+                () => {
+
+                    setStatus(
+                        false,
+                        "Telemetry disconnected · retrying…"
+                    );
+
+
+                    window.setTimeout(
+                        connectLiveTelemetry,
+                        2500
+                    );
+
+                };
+
+        }
+
+        catch {
+
+            setStatus(
+                false,
+                "Backend unavailable · UI running locally"
+            );
+
+        }
+
+    }
+
+
+    /* =========================================================
+       INITIALIZE
+    ========================================================= */
+
+    renderQueue();
+
+    renderIncident();
+
+    connectLiveTelemetry();
+
+</script>
+
+</body>
+</html>
