@@ -1,4 +1,4 @@
-﻿from datetime import datetime, timezone
+from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 from schemas import SentraEvent
@@ -806,8 +806,8 @@ class IntelligenceEngine:
         ):
 
             title = (
-                "Cross-source suspicious authentication "
-                "and privileged-access sequence"
+                "Cross-source authentication "
+                "and restricted-access sequence"
             )
 
         elif (
@@ -817,8 +817,7 @@ class IntelligenceEngine:
         ):
 
             title = (
-                "Suspicious authentication and "
-                "privileged-access sequence"
+                "Authentication and restricted-access sequence"
             )
 
         elif (

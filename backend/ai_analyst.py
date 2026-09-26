@@ -1,4 +1,4 @@
-﻿import asyncio
+import asyncio
 import json
 import urllib.error
 import urllib.request
@@ -6,7 +6,7 @@ from typing import Dict, List, Optional
 
 
 OLLAMA_URL = "http://127.0.0.1:11434/api/chat"
-OLLAMA_MODEL = "gemma2-2b-local:latest"
+OLLAMA_MODEL = "dolphin-local:latest"
 
 AI_ANALYSIS_CACHE: Dict[str, dict] = {}
 
@@ -49,7 +49,7 @@ AI_SCHEMA = {
 SYSTEM_PROMPT = """
 You are SENTRA's AI incident summarizer.
 
-SENTRA has already detected and scored the security incident
+SENTRA has already detected and scored the observed event sequence
 using a deterministic evidence engine.
 
 Your ONLY job is to write a concise factual summary of the
@@ -85,7 +85,12 @@ STRICT RULES:
 
 7. Describe observations, not explanations.
 
-8. Keep the response to one concise paragraph.
+8. Do not use evaluative wording such as suspicious, malicious,
+   threat, attack, concerning, risky, or security incident.
+   Do not use causal wording such as "indicates", "suggests",
+   "implies", or "proves".
+
+9. Keep the response to one concise paragraph.
 
 9. Return ONLY valid JSON matching the requested schema.
 """
@@ -138,18 +143,18 @@ def _build_grounded_hypothesis(
 
     if len(sources) >= 2:
         return (
-            f"The observed telemetry shows a suspicious authentication "
+            f"The observed telemetry shows an authentication "
             f"and access sequence involving {user} on {host} across "
-            f"multiple telemetry sources. The available evidence supports "
-            f"further investigation, but does not establish malicious "
-            f"intent or compromise."
+            f"multiple telemetry sources. The evidence consists of "
+            f"recorded authentication and authorization events from "
+            f"the supplied telemetry."
         )
 
     return (
         f"The observed telemetry shows an authentication and access "
-        f"sequence involving {user} on {host} that warrants further "
-        f"investigation. The available evidence does not establish "
-        f"malicious intent or compromise."
+        f"sequence involving {user} on {host}. The evidence consists "
+        f"of recorded authentication and authorization events from "
+        f"the supplied telemetry."
     )
 
 
@@ -579,16 +584,27 @@ def _build_grounding_confidence(
 # ---------------------------------------------------------
 
 FORBIDDEN_PHRASES = (
+    # Strong unsupported claims. These remain hard failures.
     "possible attacker",
     "potential attacker",
     "attacker activity",
+    "attacker",
     "malware",
     "compromised",
     "compromise",
     "breach",
     "data exfiltration",
+    "exfiltration",
     "malicious actor",
     "malicious user",
+    "malicious",
+)
+
+SOFT_TERMS = (
+    # These are discouraged by the prompt, but their presence alone
+    # should not throw away an otherwise factual Dolphin summary.
+    # A local model may occasionally use one of these generic terms
+    # while still accurately describing the supplied telemetry.
     "configuration issue",
     "configuration problem",
     "network problem",
@@ -596,6 +612,16 @@ FORBIDDEN_PHRASES = (
     "authentication bug",
     "temporary authentication issue",
     "temporary authentication problem",
+    "suspicious",
+    "suspicion",
+    "suggests",
+    "suggest",
+    "indicates",
+    "indicating",
+    "implies",
+    "imply",
+    "proves",
+    "prove",
 )
 
 
@@ -632,6 +658,8 @@ def _validate_summary(
         "telemetry",
         "event",
         "activity",
+        "security incident",
+        "incident",
     )
 
     lowered = summary.lower()
@@ -644,10 +672,6 @@ def _validate_summary(
 
     return True
 
-
-# ---------------------------------------------------------
-# PROMPT
-# ---------------------------------------------------------
 
 def _build_prompt(
     incident: dict,
@@ -729,6 +753,10 @@ WRITING REQUIREMENTS
 - Do not speculate.
 - Do not change the supplied risk or severity.
 - Keep the result concise.
+- Prefer factual constructions such as "recorded", "observed",
+  "followed by", "resulted in", and "was correlated across".
+- Do not call the event suspicious, malicious, a threat, an attack,
+  or a security incident.
 """
 
     return prompt.strip()
@@ -737,6 +765,88 @@ WRITING REQUIREMENTS
 # ---------------------------------------------------------
 # OLLAMA CALL
 # ---------------------------------------------------------
+
+
+def _repair_ollama_summary(
+    incident: dict,
+    evidence_context: Optional[List[dict]],
+    rejected_summary: str,
+) -> Optional[str]:
+    """
+    One grounded rewrite pass when the first local-LLM summary
+    violates the evidence-language guardrail.
+    """
+
+    repair_prompt = f"""
+Rewrite the following SENTRA summary into one concise factual paragraph.
+
+REJECTED SUMMARY
+----------------
+{rejected_summary}
+
+RULES
+-----
+- Use only facts present in the supplied incident evidence.
+- Describe what was recorded or observed.
+- Do not infer motive, cause, threat, attack, compromise, or intent.
+- Do not use: suspicious, malicious, threat, attack, risky,
+  concerning, security incident, suggests, indicates, implies, proves.
+- Mention the cross-source nature of the evidence when applicable.
+- Preserve the event order.
+- Return only JSON matching the required schema.
+
+INCIDENT EVIDENCE
+-----------------
+{json.dumps(incident.get("evidence", []), ensure_ascii=False)}
+"""
+
+    payload = {
+        "model": OLLAMA_MODEL,
+        "messages": [
+            {
+                "role": "system",
+                "content": (
+                    "You are a factual security telemetry rewriter. "
+                    "Use only supplied observations."
+                ),
+            },
+            {
+                "role": "user",
+                "content": repair_prompt,
+            },
+        ],
+        "stream": False,
+        "format": AI_SCHEMA,
+        "options": {
+            "temperature": 0.0,
+        },
+    }
+
+    body = json.dumps(payload).encode("utf-8")
+
+    request = urllib.request.Request(
+        OLLAMA_URL,
+        data=body,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(request, timeout=90) as response:
+            raw_response = response.read().decode("utf-8")
+        outer = json.loads(raw_response)
+        content = outer.get("message", {}).get("content")
+        if not content:
+            return None
+        result = json.loads(content)
+        summary = result.get("summary")
+        if isinstance(summary, str) and _validate_summary(summary.strip()):
+            return summary.strip()
+    except Exception:
+        return None
+
+    return None
+
 
 def _call_ollama(
     incident: dict,
@@ -898,16 +1008,30 @@ async def analyze_incident(
     # Validate AI-generated summary.
     # -----------------------------------------------------
 
+    summary_source = "ollama"
+
     if not _validate_summary(
         ai_summary
     ):
-        ai_summary = (
-            "SENTRA correlated the supplied telemetry into "
-            "a single incident involving the observed "
-            "authentication and access sequence. The "
-            "available evidence is being presented for "
-            "further investigation."
+        repaired_summary = await asyncio.to_thread(
+            _repair_ollama_summary,
+            incident,
+            evidence_context,
+            ai_summary,
         )
+
+        if repaired_summary:
+            ai_summary = repaired_summary
+            summary_source = "ollama_repair"
+        else:
+            ai_summary = (
+                "SENTRA correlated the supplied telemetry into "
+                "a single incident involving the observed "
+                "authentication and access sequence. The "
+                "available evidence is being presented for "
+                "further investigation."
+            )
+            summary_source = "deterministic_fallback"
 
     # -----------------------------------------------------
     # Deterministic analytical fields.
@@ -945,6 +1069,8 @@ async def analyze_incident(
         "generated_for_incident": incident_id,
 
         "analysis_mode": "hybrid_evidence_first",
+
+        "summary_source": summary_source,
     }
 
     AI_ANALYSIS_CACHE[

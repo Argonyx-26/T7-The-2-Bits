@@ -1,6 +1,6 @@
 ﻿# SENTRA
 
-## Intelligent Threat Detection & Situational Awareness
+## Intelligent Threat Detection \& Situational Awareness
 
 SENTRA is an evidence-first security incident intelligence system designed for lean IT teams without a dedicated Security Operations Center (SOC).
 
@@ -15,19 +15,19 @@ ARGONYX '26 — Problem Statement #5:
 ## Current Architecture
 
 Real Telemetry
-    ↓
+↓
 Telemetry Adapters
-    ↓
+↓
 Event Normalization
-    ↓
+↓
 Correlation
-    ↓
+↓
 Risk / Incident Engine
-    ↓
+↓
 Evidence
-    ↓
+↓
 AI Analysis
-    ↓
+↓
 Live Dashboard
 
 ## Current Working Base
@@ -36,11 +36,11 @@ The prototype currently includes a real-time Windows Security Event Log collecto
 
 Supported authentication-related events include:
 
-- 4624 — Successful logon
-- 4625 — Failed logon
-- 4648 — Explicit credentials
-- 4634 — Logoff
-- 4647 — User-initiated logoff
+* 4624 — Successful logon
+* 4625 — Failed logon
+* 4648 — Explicit credentials
+* 4634 — Logoff
+* 4647 — User-initiated logoff
 
 The collector normalizes events and sends them to a FastAPI backend, which exposes them to the frontend through WebSockets.
 
@@ -56,58 +56,68 @@ These sources feed the same event pipeline.
 ## Core Product Flow
 
 Authentication + Application Telemetry
-    ↓
+↓
 Correlation
-    ↓
+↓
 Risk Score
-    ↓
+↓
 Incident
-    ↓
+↓
 Evidence / Timeline
-    ↓
+↓
 AI Analysis
-    ↓
+↓
 Next Investigation Step
 
 ## Design Principles
 
-- Real telemetry first
-- Deterministic evidence before AI
-- Common event schema across sources
-- Explainable correlation and risk
-- Investigation-first workflow
-- Live demo over simulated data
-- Replay only as an emergency fallback
+* Real telemetry first
+* Deterministic evidence before AI
+* Common event schema across sources
+* Explainable correlation and risk
+* Investigation-first workflow
+* Live demo over simulated data
+* Replay only as an emergency fallback
 
 ## Technology
 
 ### Backend
-- Python
-- FastAPI
-- asyncio
-- WebSockets
+
+* Python
+* FastAPI
+* asyncio
+* WebSockets
 
 ### Telemetry
-- Windows Security Event Log
-- Application telemetry
+
+* Windows Security Event Log
+* Application telemetry
 
 ### Frontend
-- React
-- Vite
-- Tailwind CSS
+
+* React
+* Vite
+* Tailwind CSS
 
 ### AI
-- Structured LLM output
+
+* Structured LLM output
 
 ## Team
 
 ### The 2 Bits
 
-**Harshitha M** — Team Lead / Frontend & Product
+**Vaishnav S - Team Lead / Backend / Telemetry / Intelligence**
 
-**Vaishnav S** — Backend / Telemetry / Intelligence
 
-## Project Status
+
+**Harshitha M - Frontend / Product**
+
+
+
+Project Status
+
+
 
 ARGONYX '26 — Round 2
 
@@ -115,6 +125,7 @@ The real-time telemetry and event-streaming foundation has been implemented and 
 
 The correlation, risk, incident, evidence, and AI layers are being developed during the 24-hour hackathon build.
 
----
+\---
 
 Built for ARGONYX '26 — RV University
+

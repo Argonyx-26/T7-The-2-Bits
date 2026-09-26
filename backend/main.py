@@ -1,4 +1,4 @@
-﻿from typing import List
+from typing import List
 
 from fastapi import (
     FastAPI,
@@ -17,6 +17,8 @@ from ai_analyst import (
 from event_bus import event_bus
 from intelligence import intelligence
 from schemas import SentraEvent
+from evidence_graph import build_evidence_graph
+from investigation_runner import run_investigation
 
 
 app = FastAPI(
@@ -230,7 +232,7 @@ async def health():
         "incidents": len(
             intelligence.get_incidents()
         ),
-        "ai_model": "gemma2-2b-local:latest",
+        "ai_model": "dolphin-local:latest",
     }
 
 
@@ -327,6 +329,62 @@ async def get_incident(
     }
 
 
+@app.get("/incidents/{incident_id}/graph")
+async def get_incident_graph(
+    incident_id: str,
+):
+    incident = intelligence.get_incident(
+        incident_id
+    )
+
+    if not incident:
+        raise HTTPException(
+            status_code=404,
+            detail="Incident not found",
+        )
+
+    return {
+        "incident_id": incident_id,
+        "graph": build_evidence_graph(
+            incident
+        ),
+    }
+
+
+@app.post("/incidents/{incident_id}/investigate")
+async def investigate_incident_endpoint(
+    incident_id: str,
+):
+    incident = intelligence.get_incident(
+        incident_id
+    )
+
+    if not incident:
+        raise HTTPException(
+            status_code=404,
+            detail="Incident not found",
+        )
+
+    print(
+        "[INVESTIGATION RUNNER] "
+        f"Running investigation for {incident_id}"
+    )
+
+    investigation = run_investigation(
+        incident
+    )
+
+    print(
+        "[INVESTIGATION RUNNER] "
+        f"Completed investigation for {incident_id}"
+    )
+
+    return {
+        "incident_id": incident_id,
+        "investigation": investigation,
+    }
+
+
 @app.post("/incidents/{incident_id}/analyze")
 async def analyze_incident_endpoint(
     incident_id: str,
@@ -387,6 +445,10 @@ async def analyze_incident_endpoint(
         f"Completed incident {incident_id} "
         f"confidence={analysis['confidence']:.2f}"
     )
+
+    # Persist the latest analysis on the in-memory incident so
+    # GET /incidents and the dashboard show the same result.
+    incident["ai_analysis"] = analysis
 
     return {
         "incident_id": incident_id,

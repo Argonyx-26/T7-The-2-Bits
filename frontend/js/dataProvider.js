@@ -12,7 +12,9 @@ import {
     getEvents,
     getIncidents,
     getIncident,
-    analyzeIncident
+    analyzeIncident,
+    getIncidentGraph,
+    investigateIncident
 } from "./api.js";
 
 
@@ -106,4 +108,56 @@ export async function analyzeIncidentForIncident(
     }
 
     return analyzeIncident(incidentId);
+}
+
+export async function loadIncidentGraph(
+    incidentId
+) {
+    if (DATA_MODE === "mock") {
+        return {
+            incident_id: incidentId,
+            graph: {
+                nodes: [],
+                edges: []
+            }
+        };
+    }
+
+    return getIncidentGraph(
+        incidentId
+    );
+}
+
+
+export async function investigateIncidentForIncident(
+    incidentId
+) {
+    if (DATA_MODE === "mock") {
+        return {
+            incident_id: incidentId,
+            investigation: {
+                incident_id: incidentId,
+                checked_at: new Date().toISOString(),
+                checks: {
+                    recent_authentication_activity: {
+                        status: "none_observed",
+                        event_count: 0
+                    },
+                    cross_source_activity: {
+                        status: "not_observed",
+                        sources: [],
+                        source_count: 0
+                    },
+                    restricted_resource_activity: {
+                        status: "none_observed",
+                        event_count: 0
+                    }
+                }
+            }
+        };
+    }
+
+    return investigateIncident(
+        incidentId
+    );
 }

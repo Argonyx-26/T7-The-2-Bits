@@ -62,3 +62,23 @@ export async function analyzeIncident(
         }
     );
 }
+
+
+export async function getIncidentGraph(
+    incidentId
+) {
+    return request(
+        `/incidents/${encodeURIComponent(incidentId)}/graph`
+    );
+}
+
+export async function investigateIncident(
+    incidentId
+) {
+    return request(
+        `/incidents/${encodeURIComponent(incidentId)}/investigate`,
+        {
+            method: "POST"
+        }
+    );
+}

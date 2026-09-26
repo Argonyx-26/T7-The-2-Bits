@@ -1,0 +1,2069 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8" />
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    />
+
+    <meta
+        name="theme-color"
+        content="#0B1230"
+    />
+
+    <title>
+        SENTRA — Evidence Relationship Graph
+    </title>
+
+
+    <style>
+
+        :root {
+
+            --bg: #f4f8fc;
+            --panel: #ffffff;
+            --panel-2: #f8fbfe;
+
+            --line: #d9e3ed;
+            --line-soft: #e9eff5;
+
+            --text: #0b1730;
+            --text-secondary: #36506f;
+
+            --muted: #6f839d;
+            --muted-2: #93a2b5;
+
+            --violet: #745cf2;
+            --cyan: #13add0;
+            --green: #1aa564;
+            --amber: #d89422;
+            --red: #e64c65;
+
+            --shadow:
+                0 18px 50px rgba(29, 61, 92, .08);
+
+            --radius: 16px;
+        }
+
+
+        body.dark {
+
+            --bg: #0B1230;
+            --panel: #111936;
+            --panel-2: #151F42;
+
+            --line: #2A3762;
+            --line-soft: #202B4D;
+
+            --text: #F3F6FF;
+            --text-secondary: #B8C4E1;
+
+            --muted: #8C9BBB;
+            --muted-2: #657396;
+
+            --violet: #8B7CFF;
+            --cyan: #54D7E5;
+            --green: #55D38A;
+            --amber: #F0B967;
+            --red: #FF687C;
+
+            --shadow:
+                0 18px 50px rgba(0, 0, 0, .34);
+        }
+
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        html,
+        body {
+            min-height: 100%;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            color: var(--text);
+
+            background:
+                radial-gradient(
+                    circle at 82% 8%,
+                    rgba(139, 124, 255, .08),
+                    transparent 26%
+                ),
+
+                radial-gradient(
+                    circle at 15% 28%,
+                    rgba(84, 215, 229, .05),
+                    transparent 22%
+                ),
+
+                var(--bg);
+
+            font-family:
+                Inter,
+                ui-sans-serif,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            letter-spacing: -.01em;
+        }
+
+
+        button,
+        a {
+            font: inherit;
+        }
+
+
+        .page {
+
+            width:
+                min(
+                    1500px,
+                    calc(100% - 36px)
+                );
+
+            margin:
+                0 auto;
+
+            padding:
+                22px 0 30px;
+        }
+
+
+        /* =========================================================
+           HEADER
+        ========================================================= */
+
+        .topbar {
+
+            display:
+                flex;
+
+            justify-content:
+                space-between;
+
+            align-items:
+                flex-start;
+
+            gap:
+                20px;
+
+            margin-bottom:
+                18px;
+        }
+
+
+        .brand {
+
+            display:
+                flex;
+
+            flex-direction:
+                column;
+
+            gap:
+                5px;
+        }
+
+
+        .brand-title {
+
+            font-size:
+                24px;
+
+            font-weight:
+                800;
+
+            letter-spacing:
+                -.03em;
+        }
+
+
+        .brand-subtitle {
+
+            color:
+                var(--muted);
+
+            font-size:
+                12px;
+        }
+
+
+        .header-actions {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                8px;
+        }
+
+
+        .back-link,
+        .theme-button {
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            padding:
+                9px 12px;
+
+            border:
+                1px solid var(--line);
+
+            border-radius:
+                10px;
+
+            background:
+                var(--panel);
+
+            color:
+                var(--text-secondary);
+
+            text-decoration:
+                none;
+
+            cursor:
+                pointer;
+
+            font-size:
+                11px;
+
+            font-weight:
+                700;
+        }
+
+
+        .back-link:hover,
+        .theme-button:hover {
+
+            border-color:
+                rgba(139,124,255,.35);
+
+            color:
+                var(--text);
+        }
+
+
+        /* =========================================================
+           INCIDENT HEADER
+        ========================================================= */
+
+        .incident-card {
+
+            padding:
+                18px 20px;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    var(--panel),
+                    var(--panel-2)
+                );
+
+            border:
+                1px solid var(--line);
+
+            border-radius:
+                var(--radius);
+
+            box-shadow:
+                var(--shadow);
+
+            margin-bottom:
+                14px;
+        }
+
+
+        .eyebrow {
+
+            color:
+                var(--cyan);
+
+            font-size:
+                10px;
+
+            font-weight:
+                800;
+
+            letter-spacing:
+                .11em;
+
+            text-transform:
+                uppercase;
+        }
+
+
+        .incident-title {
+
+            margin-top:
+                8px;
+
+            font-size:
+                24px;
+
+            line-height:
+                1.2;
+
+            font-weight:
+                800;
+        }
+
+
+        .incident-meta {
+
+            margin-top:
+                8px;
+
+            color:
+                var(--muted);
+
+            font-size:
+                12px;
+        }
+
+
+        .graph-summary {
+
+            margin-top:
+                14px;
+
+            display:
+                flex;
+
+            flex-wrap:
+                wrap;
+
+            gap:
+                8px;
+        }
+
+
+        .summary-chip {
+
+            padding:
+                6px 9px;
+
+            border:
+                1px solid var(--line);
+
+            border-radius:
+                999px;
+
+            background:
+                rgba(128,145,165,.06);
+
+            color:
+                var(--text-secondary);
+
+            font-size:
+                10px;
+        }
+
+
+        /* =========================================================
+           GRAPH PANEL
+        ========================================================= */
+
+        .graph-panel {
+
+            background:
+                linear-gradient(
+                    180deg,
+                    var(--panel),
+                    var(--panel-2)
+                );
+
+            border:
+                1px solid var(--line);
+
+            border-radius:
+                var(--radius);
+
+            box-shadow:
+                var(--shadow);
+
+            overflow:
+                hidden;
+        }
+
+
+        .graph-header {
+
+            padding:
+                16px 18px;
+
+            border-bottom:
+                1px solid var(--line-soft);
+        }
+
+
+        .graph-title {
+
+            font-size:
+                12px;
+
+            font-weight:
+                800;
+
+            text-transform:
+                uppercase;
+
+            letter-spacing:
+                .10em;
+        }
+
+
+        .graph-description {
+
+            margin-top:
+                5px;
+
+            color:
+                var(--muted);
+
+            font-size:
+                11px;
+
+            line-height:
+                1.5;
+        }
+
+
+        .graph-container {
+
+            width:
+                100%;
+
+            min-height:
+                720px;
+
+            overflow:
+                auto;
+
+            padding:
+                14px;
+        }
+
+
+        .graph-canvas {
+
+            min-width:
+                1100px;
+
+            height:
+                700px;
+
+            border-radius:
+                14px;
+
+            background:
+                radial-gradient(
+                    circle at center,
+                    rgba(139,124,255,.055),
+                    transparent 58%
+                );
+        }
+
+
+        svg {
+
+            display:
+                block;
+
+            width:
+                1100px;
+
+            height:
+                700px;
+        }
+
+
+        /* =========================================================
+           EDGES
+        ========================================================= */
+
+        .graph-edge {
+
+            fill:
+                none;
+
+            stroke-width:
+                1.7;
+
+            opacity:
+                .45;
+
+            transition:
+                opacity .15s ease,
+                stroke-width .15s ease;
+        }
+
+
+        .edge-incident {
+            stroke: #ffb85c;
+        }
+
+
+        .edge-user {
+            stroke: #54d7e5;
+        }
+
+
+        .edge-host {
+            stroke: #7aa7d9;
+        }
+
+
+        .edge-source {
+            stroke: #9b88ff;
+        }
+
+
+        .edge-associated {
+
+            stroke:
+                #d5d9e2;
+
+            stroke-dasharray:
+                5 4;
+        }
+
+
+        .edge-default {
+            stroke: #9aa5b8;
+        }
+
+
+        .edge-active {
+
+            opacity:
+                1;
+
+            stroke-width:
+                3;
+        }
+
+
+        .edge-dim {
+            opacity:
+                .07;
+        }
+
+
+        /* =========================================================
+           NODES
+        ========================================================= */
+
+        .graph-node {
+
+            cursor:
+                pointer;
+
+            transition:
+                opacity .15s ease;
+        }
+
+
+        .graph-node rect {
+
+            fill:
+                rgba(
+                    15,
+                    20,
+                    30,
+                    .97
+                );
+
+            stroke-width:
+                1.5;
+        }
+
+
+        .node-incident rect {
+            stroke: #d89a3c;
+        }
+
+
+        .node-user rect {
+            stroke: #32c4d4;
+        }
+
+
+        .node-host rect {
+            stroke: #668fbe;
+        }
+
+
+        .node-source rect {
+            stroke: #8c79e8;
+        }
+
+
+        .node-event rect {
+            stroke: #7567d0;
+        }
+
+
+        .node-application rect {
+            stroke: #54b8a5;
+        }
+
+
+        .node-resource rect {
+            stroke: #b28ad9;
+        }
+
+
+        .node-type {
+
+            fill:
+                var(--cyan);
+
+            font-size:
+                8px;
+
+            font-weight:
+                800;
+
+            letter-spacing:
+                .09em;
+        }
+
+
+        .node-incident .node-type {
+            fill: #ffb85c;
+        }
+
+
+        .node-label {
+
+            fill:
+                var(--text);
+
+            font-size:
+                11px;
+
+            font-weight:
+                700;
+        }
+
+
+        .node-id {
+
+            fill:
+                var(--muted-2);
+
+            font-size:
+                8px;
+
+            font-weight:
+                600;
+
+            letter-spacing:
+                .06em;
+        }
+
+
+        .node-active {
+            opacity: 1;
+        }
+
+
+        .node-dim {
+            opacity: .18;
+        }
+
+
+        /* =========================================================
+           STATUS
+        ========================================================= */
+
+        .state {
+
+            padding:
+                40px 20px;
+
+            color:
+                var(--muted);
+
+            text-align:
+                center;
+
+            font-size:
+                12px;
+        }
+
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
+        @media (
+            max-width: 700px
+        ) {
+
+            .page {
+
+                width:
+                    calc(
+                        100% - 20px
+                    );
+            }
+
+
+            .topbar {
+
+                flex-direction:
+                    column;
+            }
+
+
+            .header-actions {
+
+                width:
+                    100%;
+            }
+
+
+            .back-link,
+            .theme-button {
+
+                flex:
+                    1;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body class="dark">
+
+<div class="page">
+
+
+    <!-- =========================================================
+         HEADER
+    ========================================================== -->
+
+    <header class="topbar">
+
+        <div class="brand">
+
+            <div class="brand-title">
+                SENTRA
+            </div>
+
+            <div class="brand-subtitle">
+                Evidence-first security incident intelligence
+            </div>
+
+        </div>
+
+
+        <div class="header-actions">
+
+            <a
+                href="live.html"
+                class="back-link"
+            >
+                ← Back to Incident
+            </a>
+
+
+            <button
+                id="themeButton"
+                type="button"
+                class="theme-button"
+            >
+                Light
+            </button>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =========================================================
+         INCIDENT
+    ========================================================== -->
+
+    <section class="incident-card">
+
+        <div class="eyebrow">
+            Evidence Relationship Graph
+        </div>
+
+
+        <div
+            id="incidentTitle"
+            class="incident-title"
+        >
+            Loading incident…
+        </div>
+
+
+        <div
+            id="incidentMeta"
+            class="incident-meta"
+        >
+            Loading incident evidence…
+        </div>
+
+
+        <div
+            id="graphSummary"
+            class="graph-summary"
+        ></div>
+
+    </section>
+
+
+
+    <!-- =========================================================
+         GRAPH
+    ========================================================== -->
+
+    <section class="graph-panel">
+
+        <div class="graph-header">
+
+            <div class="graph-title">
+                Relationship Map
+            </div>
+
+            <div class="graph-description">
+                Factual relationships derived directly from
+                the incident evidence.
+            </div>
+
+        </div>
+
+
+        <div class="graph-container">
+
+            <div
+                id="graphState"
+                class="state"
+            >
+                Loading evidence graph…
+            </div>
+
+            <div
+                id="graphCanvas"
+                class="graph-canvas"
+                style="display:none;"
+            ></div>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<script type="module">
+
+import {
+    loadIncidentGraph
+} from "./js/dataProvider.js";
+
+
+const $ = id =>
+    document.getElementById(id);
+
+
+const params =
+    new URLSearchParams(
+        window.location.search
+    );
+
+
+const incidentId =
+    params.get(
+        "incident_id"
+    );
+
+
+/* =========================================================
+   THEME
+========================================================= */
+
+const themeButton =
+    $("themeButton");
+
+
+themeButton.addEventListener(
+    "click",
+    () => {
+
+        document.body.classList.toggle(
+            "dark"
+        );
+
+
+        themeButton.textContent =
+            document.body.classList.contains(
+                "dark"
+            )
+                ? "Light"
+                : "Dark";
+    }
+);
+
+
+/* =========================================================
+   GRAPH HELPERS
+========================================================= */
+
+function getEdgeClass(
+    relationship
+) {
+
+    if (
+        relationship ===
+        "contains_event"
+    ) {
+        return "edge-incident";
+    }
+
+
+    if (
+        relationship ===
+        "performed_event"
+    ) {
+        return "edge-user";
+    }
+
+
+    if (
+        relationship ===
+        "recorded_event"
+    ) {
+        return "edge-host";
+    }
+
+
+    if (
+        relationship ===
+        "came_from"
+    ) {
+        return "edge-source";
+    }
+
+
+    if (
+        relationship ===
+        "associated_with"
+    ) {
+        return "edge-associated";
+    }
+
+
+    return "edge-default";
+}
+
+
+function createPath(
+    source,
+    target
+) {
+
+    const startX =
+        source.x;
+
+    const startY =
+        source.y < target.y
+            ? source.y + 31
+            : source.y - 31;
+
+
+    const endX =
+        target.x;
+
+    const endY =
+        source.y < target.y
+            ? target.y - 31
+            : target.y + 31;
+
+
+    if (
+        Math.abs(
+            startX - endX
+        ) < 20
+    ) {
+
+        return `
+            M ${startX} ${startY}
+            L ${endX} ${endY}
+        `;
+    }
+
+
+    const distance =
+        Math.abs(
+            endY - startY
+        );
+
+
+    const curve =
+        Math.max(
+            70,
+            distance * .25
+        );
+
+
+    if (
+        startX <
+        endX
+    ) {
+
+        return `
+            M ${startX} ${startY}
+            C
+            ${startX + curve} ${startY},
+            ${endX - curve} ${endY},
+            ${endX} ${endY}
+        `;
+    }
+
+
+    return `
+        M ${startX} ${startY}
+        C
+        ${startX - curve} ${startY},
+        ${endX + curve} ${endY},
+        ${endX} ${endY}
+    `;
+}
+
+
+/* =========================================================
+   RENDER GRAPH
+========================================================= */
+
+function renderGraph(
+    graph
+) {
+
+    const nodes =
+        Array.isArray(
+            graph.nodes
+        )
+            ? graph.nodes
+            : [];
+
+
+    const edges =
+        Array.isArray(
+            graph.edges
+        )
+            ? graph.edges
+            : [];
+
+
+    if (
+        nodes.length ===
+        0
+    ) {
+
+        $("graphState").textContent =
+            "No evidence graph available.";
+
+        return;
+    }
+
+
+    $("graphState").style.display =
+        "none";
+
+
+    const canvas =
+        $("graphCanvas");
+
+
+    canvas.style.display =
+        "block";
+
+
+    const width =
+        1100;
+
+    const height =
+        700;
+
+
+    const svgNS =
+        "http://www.w3.org/2000/svg";
+
+
+    const svg =
+        document.createElementNS(
+            svgNS,
+            "svg"
+        );
+
+
+    svg.setAttribute(
+        "viewBox",
+        `0 0 ${width} ${height}`
+    );
+
+
+    /* ---------------------------------------------------------
+       ARROW
+    --------------------------------------------------------- */
+
+    const defs =
+        document.createElementNS(
+            svgNS,
+            "defs"
+        );
+
+
+    const marker =
+        document.createElementNS(
+            svgNS,
+            "marker"
+        );
+
+
+    marker.setAttribute(
+        "id",
+        "sentraArrow"
+    );
+
+
+    marker.setAttribute(
+        "viewBox",
+        "0 0 10 10"
+    );
+
+
+    marker.setAttribute(
+        "refX",
+        "9"
+    );
+
+
+    marker.setAttribute(
+        "refY",
+        "5"
+    );
+
+
+    marker.setAttribute(
+        "markerWidth",
+        "6"
+    );
+
+
+    marker.setAttribute(
+        "markerHeight",
+        "6"
+    );
+
+
+    marker.setAttribute(
+        "orient",
+        "auto"
+    );
+
+
+    const arrow =
+        document.createElementNS(
+            svgNS,
+            "path"
+        );
+
+
+    arrow.setAttribute(
+        "d",
+        "M 0 0 L 10 5 L 0 10 z"
+    );
+
+
+    arrow.setAttribute(
+        "fill",
+        "currentColor"
+    );
+
+
+    marker.appendChild(
+        arrow
+    );
+
+
+    defs.appendChild(
+        marker
+    );
+
+
+    svg.appendChild(
+        defs
+    );
+
+
+    /* ---------------------------------------------------------
+       GROUP NODES
+    --------------------------------------------------------- */
+
+    const incidentNodes =
+        nodes.filter(
+            node =>
+                node.type ===
+                "incident"
+        );
+
+
+    const userNodes =
+        nodes.filter(
+            node =>
+                node.type ===
+                "user"
+        );
+
+
+    const hostNodes =
+        nodes.filter(
+            node =>
+                node.type ===
+                "host"
+        );
+
+
+    const sourceNodes =
+        nodes.filter(
+            node =>
+                node.type ===
+                "source"
+        );
+
+
+    const eventNodes =
+        nodes.filter(
+            node =>
+                node.type ===
+                "event"
+        );
+
+
+    const otherNodes =
+        nodes.filter(
+            node =>
+                ![
+                    "incident",
+                    "user",
+                    "host",
+                    "source",
+                    "event"
+                ].includes(
+                    node.type
+                )
+        );
+
+
+    /* ---------------------------------------------------------
+       POSITIONS
+    --------------------------------------------------------- */
+
+    const positions =
+        new Map();
+
+
+    function setPosition(
+        node,
+        x,
+        y
+    ) {
+
+        positions.set(
+            node.id,
+            {
+                x,
+                y
+            }
+        );
+    }
+
+
+    if (
+        incidentNodes[0]
+    ) {
+
+        setPosition(
+            incidentNodes[0],
+            550,
+            70
+        );
+    }
+
+
+    if (
+        userNodes[0]
+    ) {
+
+        setPosition(
+            userNodes[0],
+            180,
+            260
+        );
+    }
+
+
+    if (
+        hostNodes[0]
+    ) {
+
+        setPosition(
+            hostNodes[0],
+            550,
+            185
+        );
+    }
+
+
+    if (
+        sourceNodes[0]
+    ) {
+
+        setPosition(
+            sourceNodes[0],
+            920,
+            260
+        );
+    }
+
+
+    otherNodes.forEach(
+        (
+            node,
+            index
+        ) => {
+
+            setPosition(
+                node,
+                index % 2 === 0
+                    ? 180
+                    : 920,
+
+                520 +
+                (
+                    Math.floor(
+                        index / 2
+                    ) *
+                    80
+                )
+            );
+        }
+    );
+
+
+    eventNodes.forEach(
+        (
+            node,
+            index
+        ) => {
+
+            setPosition(
+                node,
+                550,
+                320 +
+                (
+                    index *
+                    62
+                )
+            );
+        }
+    );
+
+
+    /* ---------------------------------------------------------
+       LAYERS
+    --------------------------------------------------------- */
+
+    const edgeLayer =
+        document.createElementNS(
+            svgNS,
+            "g"
+        );
+
+
+    const nodeLayer =
+        document.createElementNS(
+            svgNS,
+            "g"
+        );
+
+
+    svg.appendChild(
+        edgeLayer
+    );
+
+
+    svg.appendChild(
+        nodeLayer
+    );
+
+
+    /* ---------------------------------------------------------
+       DRAW EDGES
+    --------------------------------------------------------- */
+
+    edges.forEach(
+        edge => {
+
+            const source =
+                positions.get(
+                    edge.source
+                );
+
+
+            const target =
+                positions.get(
+                    edge.target
+                );
+
+
+            if (
+                !source ||
+                !target
+            ) {
+                return;
+            }
+
+
+            const path =
+                document.createElementNS(
+                    svgNS,
+                    "path"
+                );
+
+
+            path.setAttribute(
+                "d",
+                createPath(
+                    source,
+                    target
+                )
+            );
+
+
+            path.setAttribute(
+                "class",
+                `graph-edge ${getEdgeClass(
+                    edge.relationship
+                )}`
+            );
+
+
+            path.setAttribute(
+                "marker-end",
+                "url(#sentraArrow)"
+            );
+
+
+            path.dataset.source =
+                edge.source;
+
+
+            path.dataset.target =
+                edge.target;
+
+
+            const title =
+                document.createElementNS(
+                    svgNS,
+                    "title"
+                );
+
+
+            title.textContent =
+                `${edge.relationship || "relationship"} · ` +
+                `${(
+                    edge.evidence_ids || []
+                ).length} evidence item(s)`;
+
+
+            path.appendChild(
+                title
+            );
+
+
+            edgeLayer.appendChild(
+                path
+            );
+        }
+    );
+
+
+    /* ---------------------------------------------------------
+       DRAW NODES
+    --------------------------------------------------------- */
+
+    const nodeMap =
+        new Map();
+
+
+    nodes.forEach(
+        node => {
+
+            const position =
+                positions.get(
+                    node.id
+                );
+
+
+            if (!position) {
+                return;
+            }
+
+
+            const group =
+                document.createElementNS(
+                    svgNS,
+                    "g"
+                );
+
+
+            group.setAttribute(
+                "class",
+                `graph-node node-${node.type || "unknown"}`
+            );
+
+
+            group.dataset.nodeId =
+                node.id;
+
+
+            const rect =
+                document.createElementNS(
+                    svgNS,
+                    "rect"
+                );
+
+
+            rect.setAttribute(
+                "x",
+                position.x - 82
+            );
+
+
+            rect.setAttribute(
+                "y",
+                position.y - 31
+            );
+
+
+            rect.setAttribute(
+                "width",
+                "164"
+            );
+
+
+            rect.setAttribute(
+                "height",
+                "62"
+            );
+
+
+            rect.setAttribute(
+                "rx",
+                "12"
+            );
+
+
+            group.appendChild(
+                rect
+            );
+
+
+            const typeText =
+                document.createElementNS(
+                    svgNS,
+                    "text"
+                );
+
+
+            typeText.setAttribute(
+                "x",
+                position.x
+            );
+
+
+            typeText.setAttribute(
+                "y",
+                position.y - 9
+            );
+
+
+            typeText.setAttribute(
+                "text-anchor",
+                "middle"
+            );
+
+
+            typeText.setAttribute(
+                "class",
+                "node-type"
+            );
+
+
+            typeText.textContent =
+                String(
+                    node.type ||
+                    "node"
+                ).toUpperCase();
+
+
+            group.appendChild(
+                typeText
+            );
+
+
+            const labelText =
+                document.createElementNS(
+                    svgNS,
+                    "text"
+                );
+
+
+            labelText.setAttribute(
+                "x",
+                position.x
+            );
+
+
+            labelText.setAttribute(
+                "y",
+                position.y + 12
+            );
+
+
+            labelText.setAttribute(
+                "text-anchor",
+                "middle"
+            );
+
+
+            labelText.setAttribute(
+                "class",
+                "node-label"
+            );
+
+
+            let label =
+                String(
+                    node.label ||
+                    node.id ||
+                    "unknown"
+                );
+
+
+            if (
+                label.length >
+                25
+            ) {
+
+                label =
+                    label.slice(
+                        0,
+                        22
+                    ) +
+                    "…";
+            }
+
+
+            labelText.textContent =
+                label;
+
+
+            group.appendChild(
+                labelText
+            );
+
+
+            if (
+                node.type ===
+                "event"
+            ) {
+
+                const eventIndex =
+                    eventNodes.findIndex(
+                        item =>
+                            item.id ===
+                            node.id
+                    );
+
+
+                const idText =
+                    document.createElementNS(
+                        svgNS,
+                        "text"
+                    );
+
+
+                idText.setAttribute(
+                    "x",
+                    position.x
+                );
+
+
+                idText.setAttribute(
+                    "y",
+                    position.y + 27
+                );
+
+
+                idText.setAttribute(
+                    "text-anchor",
+                    "middle"
+                );
+
+
+                idText.setAttribute(
+                    "class",
+                    "node-id"
+                );
+
+
+                idText.textContent =
+                    `E${eventIndex + 1}`;
+
+
+                group.appendChild(
+                    idText
+                );
+            }
+
+
+            const title =
+                document.createElementNS(
+                    svgNS,
+                    "title"
+                );
+
+
+            title.textContent =
+                `${node.type}: ${node.label}`;
+
+
+            group.appendChild(
+                title
+            );
+
+
+            nodeMap.set(
+                node.id,
+                group
+            );
+
+
+            nodeLayer.appendChild(
+                group
+            );
+        }
+    );
+
+
+    /* ---------------------------------------------------------
+       HOVER
+    --------------------------------------------------------- */
+
+    nodes.forEach(
+        node => {
+
+            const group =
+                nodeMap.get(
+                    node.id
+                );
+
+
+            if (!group) {
+                return;
+            }
+
+
+            group.addEventListener(
+                "mouseenter",
+                () => {
+
+                    nodeLayer
+                        .querySelectorAll(
+                            ".graph-node"
+                        )
+                        .forEach(
+                            element => {
+
+                                element.classList.add(
+                                    "node-dim"
+                                );
+                            }
+                        );
+
+
+                    edgeLayer
+                        .querySelectorAll(
+                            ".graph-edge"
+                        )
+                        .forEach(
+                            element => {
+
+                                element.classList.add(
+                                    "edge-dim"
+                                );
+                            }
+                        );
+
+
+                    group.classList.remove(
+                        "node-dim"
+                    );
+
+
+                    group.classList.add(
+                        "node-active"
+                    );
+
+
+                    edgeLayer
+                        .querySelectorAll(
+                            ".graph-edge"
+                        )
+                        .forEach(
+                            edge => {
+
+                                if (
+                                    edge.dataset.source ===
+                                    node.id ||
+
+                                    edge.dataset.target ===
+                                    node.id
+                                ) {
+
+                                    edge.classList.remove(
+                                        "edge-dim"
+                                    );
+
+
+                                    edge.classList.add(
+                                        "edge-active"
+                                    );
+
+
+                                    const otherId =
+                                        edge.dataset.source ===
+                                        node.id
+                                            ? edge.dataset.target
+                                            : edge.dataset.source;
+
+
+                                    const otherNode =
+                                        nodeMap.get(
+                                            otherId
+                                        );
+
+
+                                    if (
+                                        otherNode
+                                    ) {
+
+                                        otherNode.classList.remove(
+                                            "node-dim"
+                                        );
+                                    }
+                                }
+                            }
+                        );
+                }
+            );
+
+
+            group.addEventListener(
+                "mouseleave",
+                () => {
+
+                    nodeLayer
+                        .querySelectorAll(
+                            ".graph-node"
+                        )
+                        .forEach(
+                            element => {
+
+                                element.classList.remove(
+                                    "node-dim",
+                                    "node-active"
+                                );
+                            }
+                        );
+
+
+                    edgeLayer
+                        .querySelectorAll(
+                            ".graph-edge"
+                        )
+                        .forEach(
+                            element => {
+
+                                element.classList.remove(
+                                    "edge-dim",
+                                    "edge-active"
+                                );
+                            }
+                        );
+                }
+            );
+        }
+    );
+
+
+    canvas.appendChild(
+        svg
+    );
+}
+
+
+/* =========================================================
+   LOAD
+========================================================= */
+
+async function initialize() {
+
+    if (!incidentId) {
+
+        $("incidentTitle").textContent =
+            "No incident selected";
+
+        $("incidentMeta").textContent =
+            "Open the Evidence Relationship Graph from an incident.";
+
+        $("graphState").textContent =
+            "Missing incident_id.";
+
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await loadIncidentGraph(
+                incidentId
+            );
+
+
+        const graph =
+            response?.graph ||
+            {};
+
+
+        const nodes =
+            Array.isArray(
+                graph.nodes
+            )
+                ? graph.nodes
+                : [];
+
+
+        const edges =
+            Array.isArray(
+                graph.edges
+            )
+                ? graph.edges
+                : [];
+
+
+        const incidentNode =
+            nodes.find(
+                node =>
+                    node.type ===
+                    "incident"
+            );
+
+
+        $("incidentTitle").textContent =
+            incidentNode?.label ||
+            incidentId;
+
+
+        $("incidentMeta").textContent =
+            `Incident ID: ${incidentId}`;
+
+
+        const summary =
+            $("graphSummary");
+
+
+        summary.innerHTML = `
+
+            <span class="summary-chip">
+                ${nodes.length} nodes
+            </span>
+
+            <span class="summary-chip">
+                ${edges.length} relationships
+            </span>
+
+        `;
+
+
+        renderGraph(
+            graph
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Unable to load evidence graph:",
+            error
+        );
+
+
+        $("incidentTitle").textContent =
+            "Evidence graph unavailable";
+
+
+        $("incidentMeta").textContent =
+            error.message ||
+            "Unable to load graph data.";
+
+
+        $("graphState").textContent =
+            "Unable to load evidence graph.";
+    }
+}
+
+
+initialize();
+
+</script>
+
+</body>
+
+</html>

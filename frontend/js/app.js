@@ -514,11 +514,18 @@ function renderAIAnalysis(analysis) {
     }
 
     if (status) {
+        const sourceLabel =
+            analysis.summary_source === "ollama"
+                ? "Dolphin analysis"
+                : analysis.summary_source === "ollama_repair"
+                    ? "Dolphin analysis · grounded rewrite"
+                    : "Deterministic fallback";
+
         status.textContent =
             analysis.analysis_mode ===
             "hybrid_evidence_first"
-                ? "Hybrid evidence-first analysis"
-                : "AI analysis ready";
+                ? `Hybrid evidence-first · ${sourceLabel}`
+                : sourceLabel;
     }
 
     if (button) {
